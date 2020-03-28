@@ -13,7 +13,7 @@ yarn dev
 ```sh
 expo start
 ```
-- Execute dentro da pasta mobi -->le
+- Execute dentro da pasta mobile -->
 
 # Para iniciar o painel Web 
 <!-- 
