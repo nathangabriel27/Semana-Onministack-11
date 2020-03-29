@@ -1,17 +1,48 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Text, View, Image, TouchableOpacity, FlatList } from 'react-native';
 import { Feather } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 
+import api from '../../services/api'
 import logoImg from '../../assets/logo.png'
 import styles from './styles'
 
 export default function Incidents() {
+  const [incidents, setIncidents] = useState([])
+  const [total, setTotal] = useState(0)
+
+  const [page, setPage] = useState(1)
+  const [loading, setLoading] = useState(false)
+
+
   const navigation = useNavigation()
 
-  function navigateToDetail() {
-    navigation.navigate('Detail')
+  function navigateToDetail(incident) {
+    navigation.navigate('Detail', { incident })
   }
+  async function loadIncidents() {
+
+    if (loading) {
+      return;
+    }
+    if (total > 0 && incidents.length === total) {
+      return;
+    }
+
+    setLoading(true)
+
+    const response = await api.get(`incidents?page=${page}`)
+    setIncidents([...incidents, ...response.data])
+    setTotal(response.headers['x-total-count'])
+    setPage(page + 1)
+    setLoading(false)
+
+  }
+
+
+  useEffect(() => {
+    loadIncidents()
+  }, [])
 
   return (
     <View style={styles.container}>
@@ -19,7 +50,7 @@ export default function Incidents() {
       <View style={styles.header}>
         <Image source={logoImg} />
         <Text style={styles.headerText} >
-          Total de <Text style={styles.headerTextBold}> 0 casos </Text>.
+          Total de <Text style={styles.headerTextBold}> {total} casos </Text>.
         </Text>
       </View>
 
@@ -30,25 +61,27 @@ export default function Incidents() {
 
 
       <FlatList
-        data={[1, 2, 3, 4, 5, 6, 7, 8, 9]}
+        data={incidents}
         style={styles.incidentsList}
         showsVerticalScrollIndicator={false}
-        keyExtractor={incident => String(incident)}
-        renderItem={() => (
+        onEndReached={loadIncidents}
+        onEndReachedThreshold={0.2}
+        keyExtractor={incident => String(incident.id)}
+        renderItem={({ item: incident }) => (
           <View style={styles.incident}>
 
             <Text style={styles.incidentProperty}>ONG:</Text>
-            <Text style={styles.incidentvalue}>APAD</Text>
+            <Text style={styles.incidentvalue}>{incident.name}</Text>
 
             <Text style={styles.incidentProperty}>Caso:</Text>
-            <Text style={styles.incidentvalue}>Cachorro atropelado</Text>
+            <Text style={styles.incidentvalue}>{incident.title}</Text>
 
             <Text style={styles.incidentProperty}>Valor:</Text>
-            <Text style={styles.incidentvalue}>R$ 120,00</Text>
+            <Text style={styles.incidentvalue}>R$ {incident.value}</Text>
 
             <TouchableOpacity
               style={styles.detailsButton}
-              onPress={navigateToDetail}
+              onPress={() => navigateToDetail(incident)}
             >
               <Text style={styles.detailsButtonText}>Ver mais detalhes</Text>
               <Feather name="arrow-right" size={20} color='#e02041' />

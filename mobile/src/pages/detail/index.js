@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, View, Image, TouchableOpacity, Linking } from 'react-native';
 import { Feather } from '@expo/vector-icons'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import * as MailComposer from 'expo-mail-composer'
 
 
@@ -11,7 +11,10 @@ import styles from './styles'
 
 export default function Detail() {
   const navigation = useNavigation()
-  const message = 'Ola Apad, estou entrando em contato. '
+  const route = useRoute()
+
+  const incident = route.params.incident
+  const message = `Ola ${incident.name}, estou entrando em contato e gostaria de ajudar no caso ${incident.title} com o valor de ${incident.value}.`
 
   function navigateBackDetail() {
     navigation.goBack()
@@ -19,14 +22,14 @@ export default function Detail() {
 
   function sendMail() {
     MailComposer.composeAsync({
-      subject: "Heroi do caso Cachorro",
-      recipients: ['nathangabriel27@gmail.com'],
+      subject: `Heroi do caso: ${incident.title}`,
+      recipients: [incident.email],
       body: message
     })
 
   }
   function sendWhatsApp() {
-    Linking.openURL(`whatsapp://send?phone=5531994827158&text=${message}`)
+    Linking.openURL(`whatsapp://send?phone=${incident.whatsApp}&text=${message}`)
 
   }
 
@@ -42,13 +45,13 @@ export default function Detail() {
       <View style={styles.incident}>
 
         <Text style={[styles.incidentProperty, { marginTop: 0 }]}>ONG:</Text>
-        <Text style={styles.incidentvalue}>APAD</Text>
+  <Text style={styles.incidentvalue}>{incident.name} de {incident.city}/{incident.uf}</Text>
 
         <Text style={styles.incidentProperty}>Caso:</Text>
-        <Text style={styles.incidentvalue}>Cachorro atropelado</Text>
+        <Text style={styles.incidentvalue}>{incident.title}</Text>
 
         <Text style={styles.incidentProperty}>Valor:</Text>
-        <Text style={styles.incidentvalue}>R$ 120,00</Text>
+        <Text style={styles.incidentvalue}>{incident.value}</Text>
 
       </View>
 
