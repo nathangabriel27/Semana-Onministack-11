@@ -29,6 +29,7 @@ export default function Incidents() {
       return;
     }
 
+
     setLoading(true)
 
     const response = await api.get(`incidents?page=${page}`)
@@ -36,9 +37,7 @@ export default function Incidents() {
     setTotal(response.headers['x-total-count'])
     setPage(page + 1)
     setLoading(false)
-
   }
-
 
   useEffect(() => {
     loadIncidents()
@@ -58,7 +57,6 @@ export default function Incidents() {
         <Text style={styles.title}>Bem-vindo!</Text>
         <Text style={styles.description}>Escolha um dos casos abaixo e salve o dia</Text>
       </View>
-
 
       <FlatList
         data={incidents}
